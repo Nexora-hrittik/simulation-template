@@ -42,68 +42,85 @@ The cleanest approach to initialize your simulation is a single copy-paste setup
 
 *(Note: Creating your GitHub repository and opening a pull request still require explicit manual steps).*
 
-### Step 1: Clone and Initialize Your Simulation
+### Step 1: Run the Interactive Setup Script
 
-Copy and paste this script into your terminal (adjust `PROJECT_NAME` and `GITHUB_USERNAME` as desired):
+Copy and paste this script into your terminal. It will prompt you for your project name and (optionally) your GitHub username:
 
 ```bash
 set -e
 
-# Change these for each new simulation
-PROJECT_NAME="binary-search-visualizer"
-GITHUB_USERNAME="YOUR_GITHUB_USERNAME"
+# 1. Prompt for project name (with default)
+printf "Enter simulation project name [binary-search-visualizer]: "
+read -r PROJECT_NAME
+PROJECT_NAME="${PROJECT_NAME:-binary-search-visualizer}"
 
-# Check prerequisites
-command -v git >/dev/null || {
-  echo "Error: Install Git first."
+if [ -d "$PROJECT_NAME" ]; then
+  echo "Error: Directory '$PROJECT_NAME' already exists."
   exit 1
-}
+fi
 
-command -v node >/dev/null || {
-  echo "Error: Install Node.js first."
-  exit 1
-}
+# 2. Prompt for optional GitHub username
+printf "Enter your GitHub username (optional, press Enter to skip): "
+read -r GITHUB_USERNAME
 
-command -v npm >/dev/null || {
-  echo "Error: Install npm first."
-  exit 1
-}
+# 3. Check prerequisites
+for cmd in git node npm; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "Error: '$cmd' is not installed or not in PATH."
+    exit 1
+  }
+done
 
-# Create the project from the official template
+# 4. Clone template and detach from template history
 git clone \
   https://github.com/Nexora-Hrittik/simulation-template.git \
   "$PROJECT_NAME"
 
 cd "$PROJECT_NAME"
-
-# Remove the template's Git history and remote
 rm -rf .git
 
-# Initialize your own Git repository
+# 5. Initialize fresh git repository
 git init
 git branch -M main
 
-# Install the template's declared dependencies
+# 6. Install dependencies and run baseline validation
 npm install
-
-# Verify the starter project
 npm run check:boundary
 npm run typecheck
 npm test
 npm run build
 
-# Create your first commit
+# 7. Configure remote origin if GitHub username was provided
+if [ -n "$GITHUB_USERNAME" ]; then
+  git remote add origin "https://github.com/${GITHUB_USERNAME}/${PROJECT_NAME}.git"
+fi
+
+# 8. Create initial commit
 git add .
 git commit -m "chore: initialize simulation project"
 
 echo
-echo "Simulation project initialized successfully."
-echo "Project directory: $(pwd)"
+echo "============================================================"
+echo "  Simulation project initialized successfully!"
+echo "  Location: $(pwd)"
+echo "============================================================"
 echo
 echo "Next steps:"
-echo "1. Create an empty repository on your GitHub account."
-echo "2. Connect it using the commands below."
-echo "3. Start development with: npm run dev"
+echo "1. Start local development:"
+echo "   cd $PROJECT_NAME"
+echo "   npm run dev"
+echo
+if [ -n "$GITHUB_USERNAME" ]; then
+  echo "2. Create an empty repository named '$PROJECT_NAME' on GitHub:"
+  echo "   https://github.com/new"
+  echo
+  echo "3. Push your initial commit to GitHub:"
+  echo "   git push -u origin main"
+else
+  echo "2. (Optional) Connect to GitHub when ready:"
+  echo "   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/$PROJECT_NAME.git"
+  echo "   git push -u origin main"
+fi
 ```
 
 > [!TIP]
@@ -111,18 +128,21 @@ echo "3. Start development with: npm run dev"
 
 ### Step 2: Connect the Project to Your GitHub Account
 
-1. Create an empty repository named after your project (e.g. `binary-search-visualizer`) under your GitHub account. Do not initialize it with a README, license, or `.gitignore`, as the template already supplies them.
-2. Link your local project and push your initial commit:
+1. Create an empty repository named after your project (e.g., `binary-search-visualizer`) on your GitHub account via [github.com/new](https://github.com/new). Do not initialize it with a README, license, or `.gitignore`, as the template already supplies them.
+2. Push your initial commit:
+   - **If you entered your GitHub username in the script**, `origin` is already configured:
+     ```bash
+     cd <your-project-name>
+     git push -u origin main
+     ```
+   - **If you skipped entering your GitHub username**, add the remote origin first:
+     ```bash
+     cd <your-project-name>
+     git remote add origin https://github.com/YOUR_GITHUB_USERNAME/<your-project-name>.git
+     git push -u origin main
+     ```
 
-```bash
-cd binary-search-visualizer
-
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/binary-search-visualizer.git
-
-git push -u origin main
-```
-
-*(Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username. Authenticate via GitHub CLI `gh auth login` or standard Git credentials if prompted).*
+*(Authenticate via GitHub CLI `gh auth login` or standard Git credentials if prompted).*
 
 ---
 
