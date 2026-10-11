@@ -1,7 +1,8 @@
 {
-  "name": "@rec-labs/sim-template",
+  "name": "@nexora-hrittik/simulation-template",
   "version": "1.0.0",
-  "description": "Contributor authoring template for REC-Labs interactive simulations",
+  "private": true,
+  "description": "Official contributor authoring starter template for Nexora interactive simulations",
   "type": "module",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
@@ -21,7 +22,7 @@
     "check:boundary": "node scripts/check-boundary.js"
   },
   "dependencies": {
-    "@rec-labs/sdk": "file:../sdk"
+    "@nexora-hrittik/sdk": "^0.1.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

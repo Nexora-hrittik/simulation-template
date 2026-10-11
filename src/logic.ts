@@ -1,5 +1,5 @@
 import { TemplateConfig, TemplateState, TemplateStepLog } from './types';
-import { StepResult } from '@rec-labs/sdk';
+import { StepResult } from '@nexora-hrittik/sdk';
 
 export function createInitialState(_config: TemplateConfig): TemplateState {
   return {

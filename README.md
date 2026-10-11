@@ -2,7 +2,7 @@
 
 Official contributor authoring starter template for building interactive, deterministic simulations for the **Nexora** learning ecosystem.
 
-This repository provides a complete, runnable starter project with a built-in development harness, architectural boundary checks, and automated unit testing.
+This repository provides a complete, runnable starter project with a built-in standalone development harness, architectural boundary checks, and automated unit testing.
 
 ---
 
@@ -12,9 +12,9 @@ This starter project includes everything needed to develop, test, and package an
 
 - **Runnable Reference Implementation**: A fully functional discrete state counter satisfying the SDK contract.
 - **Standalone Development Harness**: Built-in browser environment (`SimulationPreviewHarness`) powered by Vite with step controls, speed adjustment, state inspection, and live validation reporting.
-- **Architectural Boundary Protection**: Pre-configured scanner (`scripts/check-boundary.js`) ensuring zero illegal imports from platform internals.
+- **Architectural Boundary Protection**: Pre-configured scanner (`scripts/check-boundary.js`) ensuring zero illegal imports from platform internals or unauthorized libraries.
 - **Automated Testing Suite**: Vitest test setup (`tests/logic.test.ts`) for headless testing of pure state transitions and boundary conditions.
-- **Type Safety**: Strict TypeScript configuration (`tsconfig.json`) aligned with SDK interfaces.
+- **Type Safety**: Strict TypeScript configuration (`tsconfig.json`) aligned directly with `@nexora-hrittik/sdk` interfaces.
 
 ---
 
@@ -36,48 +36,131 @@ git --version
 
 ---
 
-## 3. Setup and Development Commands
+## 3. Quick Start: One-Time Setup Script
 
-Clone the template and start local development with these commands:
+The cleanest approach to initialize your simulation is a single copy-paste setup script that creates the project, installs dependencies, detaches from the template's Git history, initializes your own repository, and runs initial validation.
+
+*(Note: Creating your GitHub repository and opening a pull request still require explicit manual steps).*
+
+### Step 1: Clone and Initialize Your Simulation
+
+Copy and paste this script into your terminal (adjust `PROJECT_NAME` and `GITHUB_USERNAME` as desired):
 
 ```bash
-# 1. Clone this template into a new directory for your simulation
-git clone https://github.com/Nexora-Hrittik/simulation-template.git my-simulation
-cd my-simulation
+set -e
 
-# 2. Install dependencies
+# Change these for each new simulation
+PROJECT_NAME="binary-search-visualizer"
+GITHUB_USERNAME="YOUR_GITHUB_USERNAME"
+
+# Check prerequisites
+command -v git >/dev/null || {
+  echo "Error: Install Git first."
+  exit 1
+}
+
+command -v node >/dev/null || {
+  echo "Error: Install Node.js first."
+  exit 1
+}
+
+command -v npm >/dev/null || {
+  echo "Error: Install npm first."
+  exit 1
+}
+
+# Create the project from the official template
+git clone \
+  https://github.com/Nexora-Hrittik/simulation-template.git \
+  "$PROJECT_NAME"
+
+cd "$PROJECT_NAME"
+
+# Remove the template's Git history and remote
+rm -rf .git
+
+# Initialize your own Git repository
+git init
+git branch -M main
+
+# Install the template's declared dependencies
 npm install
 
-# 3. Start local development server with the interactive preview harness
-npm run dev
-
-# 4. Run automated test suite
-npm test
-
-# 5. Verify architectural boundaries (no platform leaks)
+# Verify the starter project
 npm run check:boundary
-
-# 6. Run TypeScript compiler typechecks
 npm run typecheck
-
-# 7. Build production assets
+npm test
 npm run build
+
+# Create your first commit
+git add .
+git commit -m "chore: initialize simulation project"
+
+echo
+echo "Simulation project initialized successfully."
+echo "Project directory: $(pwd)"
+echo
+echo "Next steps:"
+echo "1. Create an empty repository on your GitHub account."
+echo "2. Connect it using the commands below."
+echo "3. Start development with: npm run dev"
 ```
 
-When you run `npm run dev`, Vite opens a local server at `http://localhost:5173`. The standalone development harness mounts your simulation with playback controls, state inspection, and validation telemetry.
+> [!TIP]
+> This setup script immediately runs the boundary checks, typechecks, vitest suite, and build. It stops deterministically if any step fails instead of proceeding silently.
+
+### Step 2: Connect the Project to Your GitHub Account
+
+1. Create an empty repository named after your project (e.g. `binary-search-visualizer`) under your GitHub account. Do not initialize it with a README, license, or `.gitignore`, as the template already supplies them.
+2. Link your local project and push your initial commit:
+
+```bash
+cd binary-search-visualizer
+
+git remote add origin https://github.com/YOUR_GITHUB_USERNAME/binary-search-visualizer.git
+
+git push -u origin main
+```
+
+*(Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username. Authenticate via GitHub CLI `gh auth login` or standard Git credentials if prompted).*
 
 ---
 
-## 4. Starter Project Structure
+## 4. Development Workflow
+
+Start local development by launching the interactive standalone harness:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173`. Keep the development server running while editing your simulation. The built-in preview harness mounts your simulation with live playback controls, state inspection, and validation telemetry.
+
+### Typical Development Cycle
+
+1. **State & Logic (`src/types.ts` & `src/logic.ts`)**: Define data models and implement deterministic, pure state transitions (`createInitialState`, `step`).
+2. **Visual Stage (`src/visualization.tsx`)**: Render your visual representation using props supplied by `SimulationVisualizationProps`.
+3. **Controls & Theory (`src/controls.tsx` & `src/content.ts`)**: Add input controls for interactive tweaking and write pedagogical explanations.
+4. **Unit Testing (`tests/logic.test.ts`)**: Write and run Vitest tests covering edge cases and completion criteria.
+5. **Commit Progress**:
+   ```bash
+   git add .
+   git commit -m "feat: implement simulation step logic"
+   git push
+   ```
+
+---
+
+## 5. Starter Project Structure
 
 ```text
 simulation-template/
-├── package.json              # Package manifest and scripts
+├── package.json              # Package manifest and scripts (@nexora-hrittik/simulation-template)
 ├── package-lock.json
-├── tsconfig.json             # TypeScript compiler settings
+├── tsconfig.json             # Strict TypeScript compiler configuration
 ├── vite.config.ts            # Vite bundler configuration
-├── index.html                # Entrypoint HTML loading dev harness
-├── LICENSE
+├── index.html                # Entrypoint HTML loading the standalone dev harness
+├── LICENSE                   # MIT License
 ├── README.md                 # This guide
 ├── docs/                     # Concept documentation
 │   ├── 01-overview.md
@@ -94,34 +177,15 @@ simulation-template/
     ├── controls.tsx          # React component for user configuration inputs
     ├── content.ts            # Educational theory, formulas & references
     ├── dev.tsx               # Harness mount (<SimulationPreviewHarness />)
-    ├── index.css             # Base styles and Tailwind imports
+    ├── index.css             # Base styles, Tailwind imports, and SDK stylesheet
     └── env.d.ts              # Vite environment typings
 ```
 
 ---
 
-## 5. Which Files to Modify First
-
-Follow this recommended modification workflow when creating a new simulation:
-
-1. **`src/types.ts`**: Define your domain data models:
-   - `YourConfig`: Initial parameters (e.g., array size, target value, learning rate).
-   - `YourState`: Complete snapshot of simulation execution state.
-   - `YourStepLog`: Optional metadata logged after each step transition.
-2. **`src/logic.ts`**: Implement pure functions:
-   - `createInitialState(config)`: Constructs the deterministic starting state.
-   - `step(state, config)`: Advances state by one step and returns `{ nextState, isComplete, stepLog }`.
-3. **`tests/logic.test.ts`**: Write unit tests verifying state initialization, step progression, termination conditions, and edge cases.
-4. **`src/visualization.tsx`**: Render your visual representation using the props passed by `SimulationVisualizationProps`.
-5. **`src/controls.tsx`**: Add inputs, sliders, and selectors using `SimulationControlsProps` to allow learners to tweak parameters.
-6. **`src/content.ts`**: Write rich educational explanations (`introduction`, `theory`, `howItWorks`, and `references`).
-7. **`src/index.ts`**: Wire your components together into `SimulationModule` and update metadata (`id`, `title`, `difficulty`, `tags`, `author`).
-
----
-
 ## 6. How the Simulation Contract Works
 
-The template implements the `SimulationModule` interface exported by the SDK. Here is how each part functions:
+The template implements the `SimulationModule` interface exported by `@nexora-hrittik/sdk`. Here is how each part functions:
 
 ### Pure State Machine (`src/logic.ts`)
 
@@ -178,7 +242,7 @@ export const MyControls: React.FC<SimulationControlsProps<MyState, MyConfig>> = 
 
 ### Module Definition (`src/index.ts`)
 
-Ties metadata, educational content, state machine functions, and UI components into a single object:
+Ties metadata, educational content, state machine functions, and UI components into a single export:
 
 ```typescript
 export const mySimulation: SimulationModule<MyState, MyConfig, MyStepLog> = {
@@ -206,21 +270,32 @@ export const mySimulation: SimulationModule<MyState, MyConfig, MyStepLog> = {
 
 ---
 
-## 7. Testing and Validation
+## 7. Mandatory Validation Checks
 
-Validate your simulation using both automated test scripts and visual inspection:
+Before submitting your simulation, verify that all four checks pass:
 
-- **Automated Logic Tests**: Run `npm test` to execute Vitest suites. Assert that calculations are exact and state transitions do not cause runtime errors.
-- **Architectural Boundary Check**: Run `npm run check:boundary`. This script ensures that no platform shell imports (such as `src/`, `@heroui`, or `../../`) have leaked into your code.
-- **Type Checking**: Run `npm run typecheck` to verify that all types conform strictly to SDK definitions.
-- **Production Asset Build**: Run `npm run build` to confirm that TypeScript compilation and Vite asset bundling succeed.
-- **Visual & Interactive Validation**: Run `npm run dev` and open `http://localhost:5173`. Test interactive sliders, start/pause playback, verify reset behavior, and check responsiveness.
+```bash
+npm test
+npm run check:boundary
+npm run typecheck
+npm run build
+```
+
+### What Each Check Verifies
+
+- **`npm test`**: Executes Vitest test suites, asserting algorithmic correctness, state immutability, step counting, and edge cases.
+- **`npm run check:boundary`**: Scans all source files (`.ts`, `.tsx`, `.js`, `.jsx`) with `scripts/check-boundary.js` to ensure no illegal imports escape the simulation boundary (e.g., zero imports from `@heroui/*` or platform internals).
+- **`npm run typecheck`**: Runs `tsc --noEmit` against `tsconfig.json` to guarantee strict type safety against the `@nexora-hrittik/sdk` interfaces.
+- **`npm run build`**: Compiles TypeScript and runs Vite production bundling to verify that standalone assets build cleanly.
+
+> [!NOTE]
+> All four commands must pass with exit code `0`. These checks prove that the simulation runs properly as an isolated, standalone module.
 
 ---
 
 ## 8. Checking SDK Compatibility
 
-The standalone development harness automatically tests your simulation module against the SDK runtime contract:
+The standalone development harness automatically verifies your simulation module against the SDK runtime contract:
 
 1. **Module Validation**: The harness invokes `validateSimulationModule(module)` to ensure required metadata, content sections, and pure functions exist.
 2. **Version Compatibility**: The harness calls `checkSDKCompatibility(module.metadata.sdkVersion)`:
@@ -230,31 +305,57 @@ The standalone development harness automatically tests your simulation module ag
 
 ---
 
-## 9. Turning Your Starter Project into a Contribution
+## 9. Submitting Your Simulation to REC Labs
 
-When your simulation is complete and verified:
+When your simulation is completed and verified:
 
-1. **Verify All Checks Pass**:
+1. **Fork the Official Catalog**:
+   - Go to [Nexora-Hrittik/simulations](https://github.com/Nexora-Hrittik/simulations) on GitHub and click **Fork**.
+2. **Clone Your Fork and Create a Feature Branch**:
    ```bash
+   git clone https://github.com/YOUR_GITHUB_USERNAME/simulations.git
+   cd simulations
+   git checkout -b add-my-simulation
+   ```
+3. **Copy Your Simulation into the Catalog**:
+   - Copy your completed project folder into `simulations/<your-simulation-id>/`.
+   - Ensure `metadata.id` in `src/index.ts` matches the directory name `<your-simulation-id>`.
+4. **Preserve Protected Simulation Directories**:
+   - Do **not** modify or overwrite existing simulation directories (`binary-search`, `counter`, `perceptron`).
+5. **Run Catalog-Wide Validation**:
+   ```bash
+   npm install
    npm test
    npm run check:boundary
    npm run typecheck
    npm run build
    ```
-2. **Ensure Unique Metadata**: Ensure `metadata.id` in `src/index.ts` is unique and matches the folder name you intend to use.
-3. **Fork the Simulations Catalog**:
-   - Fork and clone the official catalog: [Nexora-Hrittik/simulations](https://github.com/Nexora-Hrittik/simulations).
-   - Copy your simulation project directory into the catalog under `simulations/<your-simulation-id>/`.
-4. **Follow Catalog Contribution Instructions**:
-   - Consult the [Simulations Contribution Guide](https://github.com/Nexora-Hrittik/simulations#5-choose-your-contribution-path) for pull request steps.
-
-> [!NOTE]
-> **Already Have a Simulation Built Elsewhere?**
-> You are **not required** to recreate existing work using this template. As long as your simulation satisfies the SDK `SimulationModule` contract and passes boundary checks, you can contribute it directly following **Path B** in the [Simulations README](https://github.com/Nexora-Hrittik/simulations#path-b-contribute-a-simulation-already-built-elsewhere).
+6. **Push and Open a Pull Request**:
+   ```bash
+   git add simulations/<your-simulation-id>
+   git commit -m "feat(simulations): add <your-simulation-id> simulation"
+   git push -u origin add-my-simulation
+   ```
+   Open a pull request against `Nexora-Hrittik/simulations`.
+7. **Maintainer Review & Upstream Release**:
+   - Merging accepts your simulation into the catalog.
+   - Upstream platform packaging and registry publishing are managed by platform maintainers during scheduled releases.
 
 ---
 
-## 10. Ecosystem Links
+## 10. Future Roadmap: Single-Command Scaffolding
+
+While the setup script in [Section 3](#3-quick-start-one-time-setup-script) automates local initialization today, the planned long-term developer experience is a single command:
+
+```bash
+npx create-rec-labs-simulation binary-search-visualizer
+```
+
+This utility will scaffold the directory, install dependencies, configure Git remotes, prompt for simulation metadata, and integrate directly with automated catalog submission pipelines once upstream catalog integration mechanics are finalized.
+
+---
+
+## 11. Ecosystem Links
 
 - **Simulations Catalog**: [Nexora-Hrittik/simulations](https://github.com/Nexora-Hrittik/simulations) — Browse existing simulations and contribute new ones.
 - **Simulation SDK**: [Nexora-Hrittik/sdk](https://github.com/Nexora-Hrittik/sdk) — Core runtime interfaces, UI primitives, and validation contracts.

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { SimulationPreviewHarness } from '@rec-labs/sdk';
+import { SimulationPreviewHarness } from '@nexora-hrittik/sdk';
 import { templateSimulation } from './index';
 import './index.css';
 

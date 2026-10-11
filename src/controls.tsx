@@ -1,5 +1,5 @@
 import React from 'react';
-import { SimulationControlsProps, Slider } from '@rec-labs/sdk';
+import { SimulationControlsProps, Slider } from '@nexora-hrittik/sdk';
 import { TemplateConfig, TemplateState } from './types';
 
 export const TemplateControls: React.FC<SimulationControlsProps<TemplateState, TemplateConfig>> = ({

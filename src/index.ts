@@ -1,4 +1,4 @@
-import { SimulationModule } from '@rec-labs/sdk';
+import { SimulationModule } from '@nexora-hrittik/sdk';
 import { TemplateConfig, TemplateState, TemplateStepLog } from './types';
 import { createInitialState, step } from './logic';
 import { TemplateVisualization } from './visualization';

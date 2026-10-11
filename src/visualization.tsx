@@ -1,5 +1,5 @@
 import React from 'react';
-import { SimulationVisualizationProps } from '@rec-labs/sdk';
+import { SimulationVisualizationProps } from '@nexora-hrittik/sdk';
 import { TemplateConfig, TemplateState, TemplateStepLog } from './types';
 
 export const TemplateVisualization: React.FC<

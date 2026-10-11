@@ -1,4 +1,4 @@
-import { SimulationContent } from '@rec-labs/sdk';
+import { SimulationContent } from '@nexora-hrittik/sdk';
 
 export const TEMPLATE_CONTENT: SimulationContent = {
   introduction:
