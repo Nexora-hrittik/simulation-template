@@ -188,8 +188,11 @@ simulation-template/
 │   ├── 01-overview.md
 │   └── 02-algorithm.md
 ├── scripts/
-│   └── check-boundary.js     # Enforces zero platform shell imports
+│   ├── check-boundary.js     # Enforces zero platform shell imports & local dependency boundaries
+│   └── validate-metadata.js  # Validates simulation metadata and canonical topic taxonomy
 ├── tests/
+│   ├── contract.test.ts      # Automated SDK contract, API, and boundary tests
+│   ├── harness.test.tsx      # Standalone preview harness visual & DOM invariants
 │   └── logic.test.ts         # Vitest unit tests for algorithmic logic
 └── src/
     ├── index.ts              # Primary module export implementing SimulationModule
@@ -199,7 +202,7 @@ simulation-template/
     ├── controls.tsx          # React component for user configuration inputs
     ├── content.ts            # Educational theory, formulas & references
     ├── dev.tsx               # Harness mount (<SimulationPreviewHarness />)
-    ├── index.css             # Base styles, Tailwind imports, and SDK stylesheet
+    ├── index.css             # Base styles, Tailwind imports, and typography tokens
     └── env.d.ts              # Vite environment typings
 ```
 
@@ -262,7 +265,7 @@ export const MyControls: React.FC<SimulationControlsProps<MyState, MyConfig>> = 
 };
 ```
 
-### Module Definition (`src/index.ts`)
+### Module Definition & Canonical Topic Taxonomy (`src/index.ts`)
 
 Ties metadata, educational content, state machine functions, and UI components into a single export:
 
@@ -272,8 +275,8 @@ export const mySimulation: SimulationModule<MyState, MyConfig, MyStepLog> = {
     id: 'my-simulation',
     title: 'My Interactive Simulation',
     shortDescription: 'Clear summary of the concept.',
-    topicId: 'algorithms',
-    category: 'Algorithms',
+    topicId: 'algorithms',        // Canonical topic identifier (see taxonomy below)
+    category: 'Algorithms',       // Derived display title
     tags: ['algorithm', 'interactive'],
     difficulty: 'Beginner',
     version: '1.0.0',
@@ -290,28 +293,57 @@ export const mySimulation: SimulationModule<MyState, MyConfig, MyStepLog> = {
 };
 ```
 
+#### Canonical Topic Taxonomy
+
+REC Labs enforces an authoritative taxonomy of official topic identifiers. Your `metadata.topicId` must be one of:
+
+| `topicId` (Machine Identifier) | Display Category | Focus Discipline |
+| :--- | :--- | :--- |
+| `algorithms` | **Algorithms** | Sorting, searching, pathfinding, dynamic programming, complexity |
+| `machine-learning` | **Machine Learning** | Perceptrons, gradient descent, neural models, decision spaces |
+| `data-structures` | **Data Structures** | Trees, graphs, heaps, stacks, balanced hierarchies |
+| `computer-systems` | **Computer Systems** | CPU scheduling, virtual memory paging, cache hierarchies |
+| `networking` | **Computer Networks** | Packet routing, TCP flow control, socket handshakes, subnets |
+
+> [!IMPORTANT]
+> **Predefined Taxonomy & Automated Categorization**:
+> - `topicId` is the single source of truth for categorization. The catalog discovery engine automatically associates your simulation with its human-readable category and updates category counts dynamically.
+> - Contributors **never edit central category lists, arrays, or registries**.
+> - Contributors cannot invent arbitrary new official topic IDs. Adding a new topic is an intentional, maintainer-governed change.
+
 ---
 
 ## 7. Mandatory Validation Checks
 
-Before submitting your simulation, verify that all four checks pass:
+Before submitting your simulation, verify that all validation checks pass:
 
 ```bash
+# 1. Validate simulation metadata and canonical topic conformance
+npm run validate:metadata
+
+# 2. Run automated unit tests for state logic and harness invariants
 npm test
+
+# 3. Verify zero platform leaks escape the package boundary
 npm run check:boundary
+
+# 4. Strict TypeScript compiler verification
 npm run typecheck
+
+# 5. Build standalone production assets
 npm run build
 ```
 
 ### What Each Check Verifies
 
-- **`npm test`**: Executes Vitest test suites, asserting algorithmic correctness, state immutability, step counting, and edge cases.
+- **`npm run validate:metadata`**: Verifies that `metadata` in `src/index.ts` contains all required fields (`id`, `title`, `shortDescription`, `topicId`, `difficulty`, `version`, `tags`) and uses an authoritative canonical topic ID.
+- **`npm test`**: Executes Vitest test suites, asserting algorithmic correctness, state immutability, step counting, and harness accessibility invariants.
 - **`npm run check:boundary`**: Scans all source files (`.ts`, `.tsx`, `.js`, `.jsx`) with `scripts/check-boundary.js` to ensure no illegal imports escape the simulation boundary (e.g., zero imports from `@heroui/*` or platform internals).
 - **`npm run typecheck`**: Runs `tsc --noEmit` against `tsconfig.json` to guarantee strict type safety against the `@nexora-hrittik/sdk` interfaces.
 - **`npm run build`**: Compiles TypeScript and runs Vite production bundling to verify that standalone assets build cleanly.
 
 > [!NOTE]
-> All four commands must pass with exit code `0`. These checks prove that the simulation runs properly as an isolated, standalone module.
+> All checks must pass with exit code `0`. These checks prove that the simulation runs properly as an isolated, standalone module ready for automated catalog intake.
 
 ---
 
@@ -327,7 +359,30 @@ The standalone development harness automatically verifies your simulation module
 
 ---
 
-## 9. Submitting Your Simulation to REC Labs
+## 9. Common Installation and Import Troubleshooting
+
+| Symptom / Error | Root Cause | Solution |
+| :--- | :--- | :--- |
+| `Cannot find module '@rec-labs/sdk'` or `'@nexora/sdk'` | Obsolete package scope. The official package scope is `@nexora-hrittik/sdk`. | Replace obsolete import paths with `@nexora-hrittik/sdk`. |
+| `Cannot find module .../sdk` or broken `file:` dependency | Sibling repository dependency (`file:../sdk`). | The template is independently installable. Ensure `package.json` specifies `"@nexora-hrittik/sdk": "^0.1.0"` and run `npm install`. |
+| `npm ci` fails due to lockfile mismatch | `package-lock.json` out of sync with `package.json`. | Run `npm install` to update `package-lock.json` deterministically, then verify with `npm ci`. |
+| `[BOUNDARY VIOLATION]` during `npm run check:boundary` | Direct import from platform internals (`@heroui`, `../../src`, `@rec-labs/*`). | Use standard SDK components and primitives from `@nexora-hrittik/sdk` or local template utilities. |
+| Incompatible SDK version warning | Simulation specifies an `sdkVersion` incompatible with installed SDK. | Ensure `metadata.sdkVersion` matches the installed major/minor version (e.g. `"0.1.0"`). |
+
+---
+
+## 10. Contributor vs. Maintainer Responsibilities
+
+| Responsibility Area | Contributor Scope | Maintainer Scope |
+| :--- | :--- | :--- |
+| **SDK Development** | Consumes published `@nexora-hrittik/sdk` package; reports contract bugs. | Authors, versions, tests, and publishes official `@nexora-hrittik/sdk` releases to npm. |
+| **Simulation Authoring** | Implements simulation logic, visualization, parameters, and metadata against template. | Establishes pedagogical guidelines, visual design specifications, and taxonomy definitions. |
+| **Quality Verification** | Runs and passes `npm test`, `npm run check:boundary`, `npm run typecheck`, and `npm run build`. | Reviews pull requests and enforces CI conformance across the entire catalog. |
+| **Catalog Integration** | Copies verified simulation directory to `simulations/<id>` and submits PR. | Approves PR, tags catalog releases, and deploys to the official REC Labs platform. |
+
+---
+
+## 11. Submitting Your Simulation to REC Labs
 
 When your simulation is completed and verified:
 
@@ -365,7 +420,7 @@ When your simulation is completed and verified:
 
 ---
 
-## 10. Future Roadmap: Single-Command Scaffolding
+## 12. Future Roadmap: Single-Command Scaffolding
 
 While the setup script in [Section 3](#3-quick-start-one-time-setup-script) automates local initialization today, the planned long-term developer experience is a single command:
 
@@ -377,7 +432,7 @@ This utility will scaffold the directory, install dependencies, configure Git re
 
 ---
 
-## 11. Ecosystem Links
+## 13. Ecosystem Links
 
 - **Simulations Catalog**: [Nexora-Hrittik/simulations](https://github.com/Nexora-Hrittik/simulations) — Browse existing simulations and contribute new ones.
 - **Simulation SDK**: [Nexora-Hrittik/sdk](https://github.com/Nexora-Hrittik/sdk) — Core runtime interfaces, UI primitives, and validation contracts.

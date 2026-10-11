@@ -19,7 +19,8 @@
     "build": "tsc && vite build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "check:boundary": "node scripts/check-boundary.js"
+    "check:boundary": "node scripts/check-boundary.js",
+    "validate:metadata": "node scripts/validate-metadata.js"
   },
   "dependencies": {
     "@nexora-hrittik/sdk": "^0.1.0"

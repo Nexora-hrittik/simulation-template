@@ -1,31 +1,32 @@
-import React from 'react';
-import { SimulationVisualizationProps } from '@nexora-hrittik/sdk';
-import { TemplateConfig, TemplateState, TemplateStepLog } from './types';
+import type { FC } from 'react';
+import type { SimulationVisualizationProps } from '@nexora-hrittik/sdk';
+import type { TemplateConfig, TemplateState, TemplateStepLog } from './types';
 
-export const TemplateVisualization: React.FC<
+export const TemplateVisualization: FC<
   SimulationVisualizationProps<TemplateState, TemplateConfig, TemplateStepLog>
 > = ({ state, config }) => {
   const progressPercent = Math.min(100, Math.round((state.currentValue / config.maxLimit) * 100));
 
   return (
-    <div className="w-full flex flex-col items-center justify-center p-8 bg-zinc-50 rounded-xl border border-zinc-200">
-      <div className="text-sm font-mono uppercase tracking-wider text-zinc-500 mb-2">
+    <div className="w-full max-w-xl flex flex-col items-center justify-center p-3 sm:p-4">
+      <div className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-bold mb-2">
         Accumulator State Value
       </div>
-      <div className="text-5xl font-mono font-bold text-zinc-900 mb-6">
+      <div className="text-6xl sm:text-7xl font-mono font-bold text-zinc-950 tracking-tight mb-6">
         {state.currentValue}
       </div>
 
-      <div className="w-full max-w-md bg-zinc-200 rounded-full h-3 overflow-hidden border border-zinc-300">
+      <div className="w-full max-w-md bg-zinc-100 rounded-full h-3.5 overflow-hidden border border-zinc-200/90 p-0.5 shadow-2xs">
         <div
-          className="bg-blue-600 h-full transition-all duration-300 rounded-full"
+          className="bg-zinc-900 h-full transition-all duration-300 rounded-full"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      <div className="flex justify-between w-full max-w-md mt-2 text-xs font-mono text-zinc-500">
+      <div className="flex justify-between w-full max-w-md mt-3 text-xs font-mono text-zinc-500 font-medium">
         <span>0</span>
-        <span>{progressPercent}% (Limit: {config.maxLimit})</span>
+        <span className="font-bold text-zinc-900">{progressPercent}%</span>
+        <span>Limit: {config.maxLimit}</span>
       </div>
     </div>
   );

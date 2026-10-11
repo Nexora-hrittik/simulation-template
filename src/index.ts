@@ -13,7 +13,8 @@ export const templateSimulation: SimulationModule<
   metadata: {
     id: 'starter-template',
     title: 'Starter Simulation Template',
-    shortDescription: 'Minimal reference implementation of the REC Labs Simulation Contract.',
+    shortDescription:
+      'Observe how each execution step increments the accumulator by the configured step size, tracking state transitions and progress toward the maximum limit threshold.',
     topicId: 'algorithms',
     category: 'Algorithms',
     tags: ['template', 'starter'],

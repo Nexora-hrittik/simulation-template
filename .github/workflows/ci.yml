@@ -30,5 +30,8 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Validate simulation metadata
+        run: npm run validate:metadata
+
       - name: Build standalone preview harness
         run: npm run build

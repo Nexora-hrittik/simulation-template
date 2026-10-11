@@ -1,11 +1,11 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { SimulationPreviewHarness } from '@nexora-hrittik/sdk';
+import { SimulationPreviewHarness } from './harness/SimulationPreviewHarness';
 import { templateSimulation } from './index';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  <StrictMode>
     <SimulationPreviewHarness module={templateSimulation} />
-  </React.StrictMode>
+  </StrictMode>
 );
