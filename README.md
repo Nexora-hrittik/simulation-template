@@ -47,26 +47,27 @@ The cleanest approach to initialize your simulation is a single copy-paste setup
 Copy and paste this script into your terminal. It will prompt you for your project name and (optionally) your GitHub username:
 
 ```bash
+bash -c '
 set -e
 
 # 1. Prompt for project name (with default)
 printf "Enter simulation project name [binary-search-visualizer]: "
-read -r PROJECT_NAME
+read -r PROJECT_NAME </dev/tty
 PROJECT_NAME="${PROJECT_NAME:-binary-search-visualizer}"
 
 if [ -d "$PROJECT_NAME" ]; then
-  echo "Error: Directory '$PROJECT_NAME' already exists."
+  echo "Error: Directory \"$PROJECT_NAME\" already exists."
   exit 1
 fi
 
 # 2. Prompt for optional GitHub username
 printf "Enter your GitHub username (optional, press Enter to skip): "
-read -r GITHUB_USERNAME
+read -r GITHUB_USERNAME </dev/tty
 
 # 3. Check prerequisites
 for cmd in git node npm; do
   command -v "$cmd" >/dev/null 2>&1 || {
-    echo "Error: '$cmd' is not installed or not in PATH."
+    echo "Error: \"$cmd\" is not installed or not in PATH."
     exit 1
   }
 done
@@ -111,7 +112,7 @@ echo "   cd $PROJECT_NAME"
 echo "   npm run dev"
 echo
 if [ -n "$GITHUB_USERNAME" ]; then
-  echo "2. Create an empty repository named '$PROJECT_NAME' on GitHub:"
+  echo "2. Create an empty repository named \"$PROJECT_NAME\" on GitHub:"
   echo "   https://github.com/new"
   echo
   echo "3. Push your initial commit to GitHub:"
@@ -121,6 +122,7 @@ else
   echo "   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/$PROJECT_NAME.git"
   echo "   git push -u origin main"
 fi
+'
 ```
 
 > [!TIP]
